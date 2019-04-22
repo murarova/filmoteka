@@ -27,11 +27,26 @@ function checkRedirect(hrefShare) {
       if (redirectPage === "movie") {
         const arr = hrefShare.split("mdbID=");
         const renderById = arr[1];
-        console.log(renderById);
         view.emit("onFilmID", renderById);
         history.replaceState({}, "", "/movie.html?imdbID=" + renderById);
+      }
+      if(redirectPage === "library"){
+        view.clearStarMaintPage();
+        view.startPage();
+        view.makeFilmotekaPage();
+        history.replaceState({}, "", 'library.html');
       }
     }
   }
 }
 checkRedirect(hrefShare);
+
+window.addEventListener("popstate", e => {
+  e.preventDefault();
+  if (document.location.pathname === "/") {
+    view.clearStarMaintPage();
+    view.startPage();
+    view.mainPage();
+    history.replaceState({}, "", "");
+  }
+});

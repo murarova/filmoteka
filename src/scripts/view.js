@@ -115,13 +115,20 @@ export default class View extends EventEmitter {
       this.clearStarMaintPage();
       this.startPage();
       this.mainPage();
-      // const state = {
-      //   page: e.target.getAttribute("href")
-      // };
       history.pushState({}, "", "/");
-      // history.replaceState({}, "", "");
       e.preventDefault();
+
     });
+    // window.addEventListener("popstate", e => {
+    //   e.preventDefault();
+    //   if (document.location.pathname === "/myFilmoteka") {
+    //     console.log(document.location.pathname);
+    //     this.clearStarMaintPage();
+    //     this.startPage();
+    //     this.mainPage();
+    //     history.replaceState(state, "", "");
+    //   }
+    // });
 
     // end routing
 
@@ -135,7 +142,7 @@ export default class View extends EventEmitter {
     myFilmoteka.classList.add("menu-link");
 
     mainPage.setAttribute("href", "/");
-    myFilmoteka.setAttribute("href", "myFilmoteka");
+    myFilmoteka.setAttribute("href", "library.html");
     logo.setAttribute("href", "/");
 
     logoSpanFirst.textContent = "film";
@@ -252,11 +259,8 @@ export default class View extends EventEmitter {
           this.emit("onFilmID", idT);
           history.replaceState(state, "", "movie.html?imdbID=" + state.page);
         }
-
       });
-
     });
-
 
     // end routing for card===================================================
     let imgSrc;
@@ -352,11 +356,14 @@ export default class View extends EventEmitter {
   }
 
   createFilmPageButtons(id, root) {
-
-    const viewed = document.createElement('button');
-    viewed.classList.add('button');
-    viewed.addEventListener('click', this.viewedChange.bind(this, this.e, id));
-    if (this.viewedCheck(id)) { viewed.textContent = 'Добавить в просмотренные'; } else { viewed.textContent = 'Удалить из просмотренных'; }
+    const viewed = document.createElement("button");
+    viewed.classList.add("button");
+    viewed.addEventListener("click", this.viewedChange.bind(this, this.e, id));
+    if (this.viewedCheck(id)) {
+      viewed.textContent = "Добавить в просмотренные";
+    } else {
+      viewed.textContent = "Удалить из просмотренных";
+    }
     root.append(viewed);
 
     // const planed = document.createElement('button');
@@ -372,27 +379,31 @@ export default class View extends EventEmitter {
     // // favourites.textContent = this.favouritesCheck(id);
     // if (this.favouritesCheck(id)) { favourites.textContent = 'Добавить в избранное'; } else { favourites.textContent = 'Удалить из избранного'; }
     // root.append(favourites);
-
   }
 
   viewedChange(e, id) {
     let data = JSON.parse(localStorage.getItem("filmoteka"));
     if (!data.viewedFilms.includes(id)) {
       data.viewedFilms.push(id);
-    }
-    else {
-      data.viewedFilms = data.viewedFilms.filter(function (ele) {
+    } else {
+      data.viewedFilms = data.viewedFilms.filter(function(ele) {
         return ele !== id;
       });
     }
     localStorage.setItem("filmoteka", JSON.stringify(data));
-    if (this.viewedCheck(id)) { e.target.textContent = 'Добавить в просмотренные'; } else { e.target.textContent = 'Удалить из просмотренных'; }
+    if (this.viewedCheck(id)) {
+      e.target.textContent = "Добавить в просмотренные";
+    } else {
+      e.target.textContent = "Удалить из просмотренных";
+    }
   }
   viewedCheck(id) {
     let data = JSON.parse(localStorage.getItem("filmoteka"));
     if (!data.viewedFilms.includes(id)) {
       return true;
-    } else { return false; }
+    } else {
+      return false;
+    }
   }
 
   // planedChange(event) {
@@ -403,7 +414,9 @@ export default class View extends EventEmitter {
     let data = JSON.parse(localStorage.getItem("filmoteka"));
     if (!data.viewLaterFilms.includes(id)) {
       return true;
-    } else { return false; }
+    } else {
+      return false;
+    }
   }
 
   // favouritesChange(event) {
@@ -414,7 +427,9 @@ export default class View extends EventEmitter {
     let data = JSON.parse(localStorage.getItem("filmoteka"));
     if (!data.favoriteFilms.includes(id)) {
       return true;
-    } else { return false; }
+    } else {
+      return false;
+    }
   }
 
   makeButton(text, root) {
@@ -541,7 +556,7 @@ export default class View extends EventEmitter {
   }
   createPaginationButton(btnName, currPage, numPages) {
     // console.log('object');
-    // console.log("btnName=", btnName); 
+    // console.log("btnName=", btnName);
     //notactiveBtn
     const btn = document.createElement("button");
     btn.classList.add("button");
@@ -577,14 +592,14 @@ export default class View extends EventEmitter {
     button.classList.add("btn-filmoteka");
     //button.classList.add("activ-btn");
     button.textContent = text;
-    button.addEventListener('click', this.switchBtn.bind(this));
+    button.addEventListener("click", this.switchBtn.bind(this));
     root.append(button);
   }
 
   makeFilmotekaPage() {
     const line = document.createElement("div");
     // const container = document.querySelector('.container');
-    
+
     this.makeButton1("Очередь просмотра", line);
     this.makeButton1("Избранные", line);
     this.makeButton1("Просмотренные", line);
@@ -594,12 +609,12 @@ export default class View extends EventEmitter {
     return line;
   }
   //switch marked buttons
-  switchBtn(event){
+  switchBtn(event) {
     //console.log('event', event);
-    if (event.target.nodeName!=="BUTTON") return;
+    if (event.target.nodeName !== "BUTTON") return;
     const parentNode = event.target.parentNode;
     //console.log('parentNode=', parentNode);
-    parentNode.childNodes.forEach(node=>node.classList.remove('activ-btn'));
+    parentNode.childNodes.forEach(node => node.classList.remove("activ-btn"));
     event.target.classList.add("activ-btn");
   }
 
