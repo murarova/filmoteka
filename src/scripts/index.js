@@ -11,6 +11,7 @@ const model = new Model();
 new Controller(model, view);
 
 const hrefShare = window.location.search;
+
 function checkRedirect(hrefShare) {
   if (hrefShare.length) {
     const isRedirect = hrefShare
@@ -27,9 +28,16 @@ function checkRedirect(hrefShare) {
       if (redirectPage === "movie") {
         const arr = hrefShare.split("mdbID=");
         const renderById = arr[1];
-        console.log(renderById);
+        // console.log(renderById);
         view.emit("onFilmID", renderById);
         history.replaceState({}, "", "/movie.html?imdbID=" + renderById);
+      }
+
+      if(redirectPage === "library"){
+        view.clearStartMainPage();
+        view.makeFilmotekaPage();
+        view.emit('onViewLaterFilmsBtn');
+        history.replaceState({}, "", 'library.html');
       }
     }
   }

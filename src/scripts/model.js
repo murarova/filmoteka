@@ -2,21 +2,22 @@ import callApi from "./services/callApi";
 import callApiFull from "./services/callApiFull";
 // import { resolve } from "dns";
 
+
 export default class Model {
   constructor() {
     //fields with films
-    (this.queryFilmList = []), //last 10 film showed after search querry
-      (this.viewLaterFilms = []),
+      (this.queryFilmList = []), //last 10 film showed after search querry
       (this.viewedFilms = []),
+      (this.viewLaterFilms = []),
       (this.favoriteFilms = []);
     //last page and total for pagination
-    (this.lastPage = 1),
+      (this.lastPage = 1),
       //total results in last query
       (this.lastQueryTotal = 1),
       //last viewed film in detailed form
       (this.lastFilm = {});
     //last query for search
-    this.lastQuery = "";
+      this.lastQuery = "";
 
     //object for writtting/reading to storage
     this.filmoteka = {
@@ -54,32 +55,49 @@ export default class Model {
   }
   //read from local storage
   localStorageRead() {
+    // console.log('this.filmoteka befor=', this.filmoteka);
     if (this.localStorageAvailable) {
       try {
         let filmotekaFromLocalStorage = JSON.parse(
           localStorage.getItem("filmoteka")
         );
-        this.filmoteka = filmotekaFromLocalStorage;
-        return arrayOfFilms;
+        // console.log('filmotekaFromLocalStorage=', filmotekaFromLocalStorage);
+        if (filmotekaFromLocalStorage!==null) {
+
+          this.filmoteka = filmotekaFromLocalStorage;
+          // console.log('this.filmoteka=', this.filmoteka);
+        };
+        return;
       } catch (error) {
         console.log("Local Storage is empty");
-        return null;
+        return;
       }
     }
   }
   //add film to list
   addFilmToList(listName, film) {
     this[listName].push(film);
-    console.log("listName=", this[listName]);
+    //console.log("listName=", this[listName]);
     return this[listName].reverse();
   }
   //delete film from list
-  deleteFilmFromList(listName, id) {
-    return list.filter(film => id !== film.id);
+  deleteFilmFromList(listName, film) {
+    //console.log("this[listName]=", this[listName]);
+    return (this[listName] = this[listName].filter(item => {
+      // console.log("item=", item);
+      // console.log("item.imdbID=", item.imdbID);
+      // console.log("film=", film);
+      // console.log("film.imdbID=", film.imdbID);
+      // console.log("film.imdbID !== item.imdbID=", film.imdbID !== item.imdbID);
+
+      return film.imdbID !== item.imdbID;
+    }));
   }
-  
+
   //get queryFilmList from server
   handleSearchQuery(query, page = 1) {
+    this.localStorageRead();
+    //console.log('this=',this);
     this.lastQuery = query;
     this.filmoteka.lastQuery = this.lastQuery;
 
@@ -103,7 +121,8 @@ export default class Model {
         // console.log('this.lastQuery =', this.lastQuery);
         // console.log('this.filmoteka =', this.filmoteka);
         // console.log('this.lastQueryTotal = ', this.lastQueryTotal);
-        this.filmoteka.totalPages = Math.ceil(this.lastQueryTotal/10);
+        //this.localStorageRead();
+        this.filmoteka.totalPages = Math.ceil(this.lastQueryTotal / 10);
         this.filmoteka.queryFilmList = this.queryFilmList;
         this.localStorageWrite(this.filmoteka);
 
@@ -120,8 +139,7 @@ export default class Model {
   }
   //take ifo about film
   takeFilmInfo(id) {
-    console.log('id in model=', id);
-
+    // console.log('id in model=', id);
     // this.filmoteka.lastFilm = this.lastFilm;
     // this.localStorageWrite(this.filmoteka);
     let filmInfo = null;
@@ -129,7 +147,9 @@ export default class Model {
       // console.log("data=", data);
       this.lastFilm = data;
       // console.log("this.lastFilm=", this.lastFilm);
-      this.filmoteka.totalPages = Math.ceil(this.lastQueryTotal/10);
+      this.localStorageRead();
+
+      this.filmoteka.totalPages = Math.ceil(this.lastQueryTotal / 10);
       this.filmoteka.lastFilm = this.lastFilm;
       this.localStorageWrite(this.filmoteka);
       return this.lastFilm;
@@ -169,12 +189,66 @@ export default class Model {
         // console.log('this.lastQuery =', this.lastQuery);
         // console.log('this.filmoteka =', this.filmoteka);
         // console.log('this.lastQueryTotal = ', this.lastQueryTotal);
-        this.filmoteka.totalPages = Math.ceil(this.lastQueryTotal/10);
+        this.filmoteka.totalPages = Math.ceil(this.lastQueryTotal / 10);
         this.filmoteka.lastPage = this.lastPage;
         this.filmoteka.queryFilmList = this.queryFilmList;
         this.localStorageWrite(this.filmoteka);
       }
     });
     return searchResults;
+  }
+  //add or remove to list
+  handleListWithAction({ libraryListName, action }) {
+    // console.log('libraryListName in model= ', libraryListName);
+    // console.log('action in model= ', action);
+    // console.log('this in model= ', this);
+    if (action === "add") {
+      //console.log('inside add');
+      if (this.isFilmInList(libraryListName, this.lastFilm.imdbID)) return;
+      this.addFilmToList(libraryListName, this.lastFilm);
+    }
+    //console.log('this in model after add action= ', this);
+    if (action === "remove") {
+      //console.log('action==="remove"');
+      //console.log('this[libraryListName]=', this[libraryListName]);
+      //console.log('this.lastFilm=', this.lastFilm);
+      //console.log('this[libraryListName].includes(this.lastFilm)=', this[libraryListName].includes(this.lastFilm));
+      if (!this.isFilmInList(libraryListName, this.lastFilm.imdbID)) return;
+      this.deleteFilmFromList(libraryListName, this.lastFilm);
+    }
+    //console.log('this in model after delete action= ', this);
+    this.filmoteka[libraryListName] = this[libraryListName];
+    this.localStorageWrite(this.filmoteka);
+  }
+
+  isFilmInList(listName, id) {
+    if (this[listName].length === 0) return false;
+    return this[listName].find(item => item.imdbID === id);
+  }
+  takeFilmInfoFromLocalStorage(id) {
+    //console.log("this in model id=", id);
+    //console.log(id);
+    let result = {
+      viewLaterFilms: null,
+      viewedFilms: null,
+      favoriteFilms: null
+    };
+    //console.log('result=', result);
+    if (!this.localStorageAvailable("localStorage")) return result;
+    this.localStorageRead();
+    let dataFromLocalStorage = this.filmoteka;
+    //console.log('dataFromLocalStorage=', dataFromLocalStorage);
+    // console.log('!dataFromLocalStorage=', !dataFromLocalStorage);
+    if (!dataFromLocalStorage) return result;
+    this.viewLaterFilms = this.filmoteka.viewLaterFilms;
+    this.viewedFilms = this.filmoteka.viewedFilms;
+    this.favoriteFilms = this.filmoteka.favoriteFilms;
+    result = {
+      viewLaterFilms: this.isFilmInList("viewLaterFilms", id),
+      viewedFilms: this.isFilmInList("viewedFilms", id),
+      favoriteFilms: this.isFilmInList("favoriteFilms", id)
+    };
+    //console.log('result=', result);
+    return result;
   }
 }
