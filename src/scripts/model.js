@@ -74,6 +74,26 @@ export default class Model {
       }
     }
   }
+
+  getFavoriteFilmsFromLS() {
+    this.localStorageRead();
+    //const localStoradgeObj = this.localStorageRead();
+    return this.filmoteka.favoriteFilms;
+  }
+
+  getViewedFilmsFromLS() {
+    this.localStorageRead();
+    //const localStoradgeObj = this.localStorageRead();
+    return this.filmoteka.viewedFilms;
+  }
+
+  getViewLaterFilmsFromLS() {
+    this.localStorageRead();
+    // console.log('this =', this);
+    // console.log('localStoradgeObj =', localStoradgeObj);
+    return this.filmoteka.viewLaterFilms;
+  }
+
   //add film to list
   addFilmToList(listName, film) {
     this[listName].push(film);
