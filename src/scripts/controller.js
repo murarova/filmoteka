@@ -29,10 +29,13 @@ export default class Controller {
 	}
 
 	handleSearch(query, page) {
-		this.model.handleSearchQuery(query, page).then(() => {
-			//console.log('this.model=', this.model);
-			return this.view.updateCardsList(this.model);
-		});
+		this.model
+			.handleSearchQuery(query, page)
+			.then(() => {
+				//console.log('this.model=', this.model);
+				return this.view.updateCardsList(this.model);
+			})
+			.catch(() => this.view.ifNothingToRender());
 	}
 
 	handleNextPageSearch(text, page) {
@@ -58,6 +61,7 @@ export default class Controller {
 	//handle film page
 	handleCreateFilmPage(id) {
 		let result = this.model.takeFilmInfoFromLocalStorage(id);
+
 		return (this.view.dataAboutFilmFromLocalStorage = result);
 	}
 

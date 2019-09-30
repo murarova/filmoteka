@@ -107,24 +107,27 @@ export default class Model {
 			query.replace(/(^\s*)|(\s*)$/g, ""),
 			(page = 1)
 		);
-		searchResults.then(data => {
-			if (data.Response) {
-				this.queryFilmList = data.Search;
-				this.lastQueryTotal = data.totalResults;
-				this.lastPage = page;
-				this.filmoteka.totalPages = Math.ceil(this.lastQueryTotal / 10);
-				this.filmoteka.queryFilmList = this.queryFilmList;
-				this.localStorageWrite(this.filmoteka);
+		searchResults
+			.then(data => {
+				if (data.Response) {
+					this.queryFilmList = data.Search;
+					this.lastQueryTotal = data.totalResults;
+					this.lastPage = page;
+					this.filmoteka.totalPages = Math.ceil(this.lastQueryTotal / 10);
+					this.filmoteka.queryFilmList = this.queryFilmList;
+					this.localStorageWrite(this.filmoteka);
 
-				// Pagination
-				localStorage.setItem("numPages", Math.ceil(this.lastQueryTotal / 10));
-				if (page == 1 || page == null) {
-					localStorage.setItem("currPage", 1);
-				} else {
-					localStorage.setItem("currPage", page);
+					// Pagination
+					localStorage.setItem("numPages", Math.ceil(this.lastQueryTotal / 10));
+					if (page == 1 || page == null) {
+						localStorage.setItem("currPage", 1);
+					} else {
+						localStorage.setItem("currPage", page);
+					}
 				}
-			}
-		});
+			})
+			.catch(err => console.log(err));
+
 		return searchResults;
 	}
 	//take ifo about film

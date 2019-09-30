@@ -205,6 +205,7 @@ export default class View extends EventEmitter {
         const input = document.createElement("input");
 
         input.classList.add("input");
+        input.setAttribute("placeholder", "Search your favorite films");
         input.addEventListener("input", debounce(this.onInput.bind(this), 300));
         root.append(input);
     }
@@ -516,13 +517,15 @@ export default class View extends EventEmitter {
 
         this.clearCardsList();
         titleToTop.classList.add('title-padding');
-;
+
+
         let items = [];
         model.queryFilmList.forEach(item => {
             let newCard = this.makeCard(item);
             items.push(newCard);
             cardList.append(newCard);
         });
+
 
         // Pagination
 
@@ -626,7 +629,7 @@ export default class View extends EventEmitter {
         const message = document.createElement("p");
 
         message.classList.add("message");
-        message.textContent = "Нет данных для отображения";
+        message.textContent = "Nothing found";
 
         cardList.append(message);
     }
