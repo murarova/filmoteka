@@ -1,117 +1,110 @@
 export default class Controller {
-  constructor(model, view) {
-    this.model = model;
-    this.view = view;
+	constructor(model, view) {
+		this.model = model;
+		this.view = view;
 
-    view.on("onInputFilmName", this.handleSearch.bind(this));
-    view.on("onFilmID", this.handleFilmID.bind(this));
-    view.on("onPagination", this.handlePaginationEvent.bind(this));
+		view.on("onInputFilmName", this.handleSearch.bind(this));
+		view.on("onFilmID", this.handleFilmID.bind(this));
+		view.on("onPagination", this.handlePaginationEvent.bind(this));
 
-    view.on("onCreateFilmPage", this.handleCreateFilmPage.bind(this));
-    view.on("onHandleList", this.handleList.bind(this));
-    
-    view.on("onBackToSearchResults", this.handleBackToSearchResults.bind(this));
-    //myFilmoteka listeners
+		view.on("onCreateFilmPage", this.handleCreateFilmPage.bind(this));
+		view.on("onHandleList", this.handleList.bind(this));
 
-    view.on('onViewLaterFilmsBtn', this.handleViewLaterFilms.bind(this));
-    view.on('onFavotitesBtn', this.handleFavorites.bind(this));
-    view.on('onViewedFilmsBtn', this.handleViewedFilms.bind(this));
-  }
+		view.on("onBackToSearchResults", this.handleBackToSearchResults.bind(this));
+		//myFilmoteka listeners
 
-  handleBackToSearchResults(){
-    //start add last querry in the input after back
-    
-    this.view.updateCardsList(this.model);
+		view.on("onViewLaterFilmsBtn", this.handleViewLaterFilms.bind(this));
+		view.on("onFavotitesBtn", this.handleFavorites.bind(this));
+		view.on("onViewedFilmsBtn", this.handleViewedFilms.bind(this));
+	}
 
-    let input = document.querySelector('.input');
-    input.value=this.model.lastQuery;
-    //end add last querry in the input after back
-  }
+	handleBackToSearchResults() {
+		//start add last querry in the input after back
 
-  handleSearch(query, page) {
-    this.model.handleSearchQuery(query, page).then(() => {
-      //console.log('this.model=', this.model);
-      return this.view.updateCardsList(this.model);
-    });
-  }
+		this.view.updateCardsList(this.model);
 
-  handleNextPageSearch(text, page) {
-    this.model.handleSearchQuery(text, page).then((resolve, reject) => {
-      return this.view.updateCardsList(this.model);
-    });
-  }
+		let input = document.querySelector(".input");
+		input.value = this.model.lastQuery;
+		//end add last querry in the input after back
+	}
 
-  handleFilmID(id) {
-    this.model.takeFilmInfo(id).then(data => {
-      this.view.createFilmPage(data, id); //this.view.createFilmPageButtons(id)
-    });
-    // console.log("this.model.takeFilmInfo(id)=", this.model.takeFilmInfo(id));
-  }
+	handleSearch(query, page) {
+		this.model.handleSearchQuery(query, page).then(() => {
+			//console.log('this.model=', this.model);
+			return this.view.updateCardsList(this.model);
+		});
+	}
 
-  //handle Pagination
-  handlePaginationEvent(btnName, currPage, numPages) {
-    // console.log("this.model=", this.model);
-    this.model
-      .resolvePages(btnName, currPage, numPages)
-      .then((resolve, reject) => {
-        return this.view.updateCardsList(this.model);
-      });
-  }
-  //handle film page
-  handleCreateFilmPage(id) {  
-    let result = this.model.takeFilmInfoFromLocalStorage(id);
-    //console.log("result =", result);
-    return this.view.dataAboutFilmFromLocalStorage = result;
-  }
+	handleNextPageSearch(text, page) {
+		this.model.handleSearchQuery(text, page).then((resolve, reject) => {
+			return this.view.updateCardsList(this.model);
+		});
+	}
 
-  handleList({ libraryListName, action }) {
-    this.model.handleListWithAction({ libraryListName, action });
-  }
+	handleFilmID(id) {
+		this.model.takeFilmInfo(id).then(data => {
+			this.view.createFilmPage(data, id); //this.view.createFilmPageButtons(id)
+		});
+	}
 
-  //myFilmoteka listeners
+	//handle Pagination
+	handlePaginationEvent(btnName, currPage, numPages) {
+		this.model
+			.resolvePages(btnName, currPage, numPages)
+			.then((resolve, reject) => {
+				return this.view.updateCardsList(this.model);
+			});
+	}
+	//handle film page
+	handleCreateFilmPage(id) {
+		let result = this.model.takeFilmInfoFromLocalStorage(id);
+		return (this.view.dataAboutFilmFromLocalStorage = result);
+	}
 
-  handleViewLaterFilms() {
+	handleList({ libraryListName, action }) {
+		this.model.handleListWithAction({ libraryListName, action });
+	}
 
-    const data = this.model.getViewLaterFilmsFromLS();
+	//myFilmoteka listeners
 
-    if(data.length === 0) {
-      this.view.clearCardsList(); 
-      this.view.ifNothingToRender();
-    } else {
-      this.view.clearCardsList();
-      this.view.cardsRender(data);
-    } 
-  }
+	handleViewLaterFilms() {
+		const data = this.model.getViewLaterFilmsFromLS();
 
-  handleFavorites() {
+		if (data.length === 0) {
+			this.view.clearCardsList();
+			this.view.ifNothingToRender();
+		} else {
+			this.view.clearCardsList();
+			this.view.cardsRender(data);
+		}
+	}
 
-    const data = this.model.getFavoriteFilmsFromLS();
+	handleFavorites() {
+		const data = this.model.getFavoriteFilmsFromLS();
 
-    if(data.length === 0) {
-      this.view.clearCardsList();
-      this.view.deleteAutofocus();
-      this.view.ifNothingToRender();
-    } else {
-      this.view.clearCardsList();
-      this.view.deleteAutofocus();
+		if (data.length === 0) {
+			this.view.clearCardsList();
+			this.view.deleteAutofocus();
+			this.view.ifNothingToRender();
+		} else {
+			this.view.clearCardsList();
+			this.view.deleteAutofocus();
 
-      this.view.cardsRender(data);
-    }
-  }
+			this.view.cardsRender(data);
+		}
+	}
 
-  handleViewedFilms() {
+	handleViewedFilms() {
+		const data = this.model.getViewedFilmsFromLS();
 
-    const data = this.model.getViewedFilmsFromLS();
-
-    if(data.length === 0) {
-      this.view.clearCardsList();
-      this.view.deleteAutofocus();
-      this.view.ifNothingToRender();
-    } else {
-      this.view.clearCardsList();
-      this.view.deleteAutofocus();
-      this.view.cardsRender(data);
-    }
-  }
-
+		if (data.length === 0) {
+			this.view.clearCardsList();
+			this.view.deleteAutofocus();
+			this.view.ifNothingToRender();
+		} else {
+			this.view.clearCardsList();
+			this.view.deleteAutofocus();
+			this.view.cardsRender(data);
+		}
+	}
 }
